@@ -1,0 +1,39 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_orders %}active{% endblock %}
+{% block page_title %}Buyurtmalar{% endblock %}
+
+{% block dash_content %}
+    <div class="dash-section" style="margin-bottom:16px;">
+        <form method="get">
+            <label>Holati bo'yicha filtr:</label>
+            <select name="status" onchange="this.form.submit()">
+                <option value="">Barchasi</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if value == current_status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+    <table class="dash-table">
+        <thead><tr><th>№</th><th>Mijoz</th><th>Telefon</th><th>Holati</th><th>Jami</th><th>Sana</th><th></th></tr></thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td data-label="№">#{{ order.id }}</td>
+                    <td data-label="Mijoz">{{ order.full_name }}</td>
+                    <td data-label="Telefon">{{ order.phone }}</td>
+                    <td data-label="Holati">{{ order.get_status_display }}</td>
+                    <td data-label="Jami">{{ order.get_total_cost }} so'm</td>
+                    <td data-label="Sana">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                    <td data-label="Amallar"><a href="{% url 'dashboard:order_detail' order.id %}">Ko'rish</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7">Buyurtmalar yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

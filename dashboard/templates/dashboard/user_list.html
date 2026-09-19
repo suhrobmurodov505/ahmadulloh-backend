@@ -1,0 +1,49 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_users %}active{% endblock %}
+{% block page_title %}Foydalanuvchilar{% endblock %}
+
+{% block dash_content %}
+    <div class="table-responsive">
+    <table class="dash-table">
+        <thead><tr><th>Foydalanuvchi</th><th>Email</th><th>Ro'yxatdan o'tgan</th><th>Holati</th><th>Admin</th><th></th></tr></thead>
+        <tbody>
+            {% for u in users %}
+                <tr>
+                    <td data-label="Foydalanuvchi">{{ u.username }}</td>
+                    <td data-label="Email">{{ u.email }}</td>
+                    <td data-label="Ro'yxatdan o'tgan">{{ u.date_joined|date:"d.m.Y" }}</td>
+                    <td data-label="Holati">
+                        {% if u.is_active %}
+                            <span class="badge badge-active">Faol</span>
+                        {% else %}
+                            <span class="badge badge-inactive">Bloklangan</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Admin">
+                        {% if u.is_staff %}<span class="badge badge-staff">Admin</span>{% endif %}
+                    </td>
+                    <td data-label="Amallar">
+                        {% if u != request.user %}
+                            <form action="{% url 'dashboard:user_toggle_active' u.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-dash btn-dash-secondary" style="padding:4px 10px;font-size:12px;">
+                                    {% if u.is_active %}Bloklash{% else %}Faollashtirish{% endif %}
+                                </button>
+                            </form>
+                            <form action="{% url 'dashboard:user_toggle_staff' u.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-dash" style="padding:4px 10px;font-size:12px;">
+                                    {% if u.is_staff %}Admin huquqini olish{% else %}Admin qilish{% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <em>Siz</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Buyurtma qabul qilindi — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="py-16 px-1 md:px-4 flex justify-center">
+  <div class="max-w-lg w-full bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8 md:p-10 text-center">
+    <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-blue-600/20 border border-blue-400/30 flex items-center justify-center">
+      <i class="fa-solid fa-check text-2xl text-blue-400"></i>
+    </div>
+    <h1 class="text-xl md:text-2xl font-bold text-white mb-2" style="font-family:'Playfair Display',serif;">Rahmat! Buyurtmangiz qabul qilindi</h1>
+    <p class="text-sm text-gray-400 mb-1">Buyurtma raqami: <span class="text-blue-400 font-semibold">#{{ order.id }}</span></p>
+    <p class="text-sm text-gray-400 mb-6">Tez orada operatorimiz siz bilan <b class="text-white">{{ order.phone }}</b> raqami orqali bog'lanadi.</p>
+    <div class="flex items-center justify-center gap-3 flex-wrap">
+      <a href="{% url 'shop:order_history' %}" class="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors">Buyurtmalarim</a>
+      <a href="{% url 'shop:home' %}" class="px-5 py-2.5 rounded-full bg-white/5 border border-white/15 text-gray-300 hover:border-blue-400/50 text-sm font-medium transition-colors">Bosh sahifaga qaytish</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_home %}active{% endblock %}
+{% block page_title %}Umumiy ko'rinish{% endblock %}
+{% block page_title_extra %}
+    <span class="live-indicator"><span class="dot"></span> Jonli — <span id="liveTime">{% now "H:i:s" %}</span></span>
+{% endblock %}
+
+{% block dash_content %}
+    <div class="stat-cards" id="statCards">
+        <div class="stat-card"><div class="stat-value" data-stat="total_products">{{ total_products }}</div><div class="stat-label">Mahsulotlar</div></div>
+        <div class="stat-card"><div class="stat-value" data-stat="total_categories">{{ total_categories }}</div><div class="stat-label">Kategoriyalar</div></div>
+        <div class="stat-card"><div class="stat-value" data-stat="total_orders">{{ total_orders }}</div><div class="stat-label">Buyurtmalar</div></div>
+        <div class="stat-card"><div class="stat-value" data-stat="total_users">{{ total_users }}</div><div class="stat-label">Foydalanuvchilar</div></div>
+        <div class="stat-card"><div class="stat-value" data-stat="total_revenue" data-suffix=" so'm">{{ total_revenue }} so'm</div><div class="stat-label">Umumiy tushum (to'langan)</div></div>
+        <div class="stat-card"><div class="stat-value" data-stat="pending_orders">{{ pending_orders }}</div><div class="stat-label">Kutilayotgan buyurtmalar</div></div>
+    </div>
+
+    <div class="dash-section">
+        <h3>So'nggi buyurtmalar</h3>
+        <div class="table-responsive">
+        <table class="dash-table">
+            <thead><tr><th>№</th><th>Mijoz</th><th>Holati</th><th>Sana</th><th></th></tr></thead>
+            <tbody>
+                {% for order in recent_orders %}
+                    <tr>
+                        <td data-label="№">#{{ order.id }}</td>
+                        <td data-label="Mijoz">{{ order.full_name }}</td>
+                        <td data-label="Holati">{{ order.get_status_display }}</td>
+                        <td data-label="Sana">{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                        <td data-label="Amallar"><a href="{% url 'dashboard:order_detail' order.id %}">Ko'rish</a></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">Hozircha buyurtmalar yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="dash-section">
+        <h3>Ombordagi kam qolgan mahsulotlar</h3>
+        <div class="table-responsive">
+        <table class="dash-table">
+            <thead><tr><th>Mahsulot</th><th>Qolgan soni</th></tr></thead>
+            <tbody>
+                {% for product in low_stock_products %}
+                    <tr><td data-label="Mahsulot">{{ product.name }}</td><td data-label="Qolgan soni">{{ product.stock }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="2">Hammasi yetarli miqdorda.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Statistik kartalarni sahifani qayta yuklamasdan har 10 soniyada
+    // yangilab turadi (bazadagi haqiqiy, joriy ma'lumotlar bilan).
+    const STATS_URL = "{% url 'dashboard:stats_json' %}";
+
+    async function refreshStats() {
+        try {
+            const res = await fetch(STATS_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) return;
+            const data = await res.json();
+            document.querySelectorAll('[data-stat]').forEach(el => {
+                const key = el.dataset.stat;
+                if (!(key in data)) return;
+                const suffix = el.dataset.suffix || '';
+                const newText = data[key] + suffix;
+                if (el.textContent !== newText) {
+                    el.classList.add('updating');
+                    setTimeout(() => {
+                        el.textContent = newText;
+                        el.classList.remove('updating');
+                    }, 150);
+                }
+            });
+            const timeEl = document.getElementById('liveTime');
+            if (timeEl) timeEl.textContent = data.server_time;
+        } catch (e) {
+            /* tarmoq xatosi bo'lsa, jim o'tkazib yuboriladi, keyingi urinishda davom etadi */
+        }
+    }
+
+    setInterval(refreshStats, 10000);
+</script>
+{% endblock %}

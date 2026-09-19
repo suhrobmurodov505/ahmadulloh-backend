@@ -1,0 +1,387 @@
+/* ============================================================
+   VERTEX — Boshqaruv paneli uslubi
+   Asosiy saytning vizual tiliga moslashtirilgan (Inter/Playfair,
+   qorong'u fon, oltin-ko'k urg'u ranglar, shisha effektlar).
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+:root {
+  --gold: #1a4a8a;
+  --olive: #0d2d5a;
+  --bg: #0b0f1a;
+  --bg2: #111827;
+  --bg3: #1a2332;
+  --border: rgba(40, 80, 160, 0.15);
+  --text: #eef2f8;
+  --text2: #b4c4e0;
+  --text3: #7a8aa8;
+  --primary: #4a8ad4;
+  --card-bg: rgba(17, 24, 39, 0.65);
+  --danger: #e63946;
+  --success: #2fbf71;
+}
+
+body.dashboard-body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  /* Brauzerning tabiiy (native) elementlari — select ro'yxati, fayl tanlash
+     tugmasi, checkbox, scrollbar — shu orqali avtomatik qorong'u uslubda
+     chiziladi, shuning uchun ular oq/yorqin bo'lib qolmaydi. */
+  color-scheme: dark;
+}
+
+.dash-wrapper { display: flex; min-height: 100vh; }
+
+/* ---------- Mobile overlay & toggle buttons ---------- */
+.dash-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  z-index: 39;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.dash-overlay.open { display: block; opacity: 1; }
+.dash-menu-btn, .dash-sidebar-close {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: rgba(74,138,212,0.1);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dash-menu-btn:hover, .dash-sidebar-close:hover { background: rgba(74,138,212,0.2); }
+.dash-sidebar-close { margin-left: auto; }
+.dash-topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.dash-back-link { color: var(--text2); text-decoration: none; font-size: 0.82rem; font-weight: 500; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.dash-back-link:hover { color: var(--primary); }
+body.dash-no-scroll { overflow: hidden; }
+
+/* ---------- Sidebar ---------- */
+.dash-sidebar {
+  width: 240px;
+  background: rgba(11, 15, 26, 0.92);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  padding: 0 0 20px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.dash-sidebar .brand {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--primary);
+  padding: 20px 22px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.dash-sidebar .brand span { font-weight: 400; font-size: 12px; color: var(--text3); }
+.dash-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 22px;
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.dash-sidebar a:hover { background: rgba(74, 138, 212, 0.08); color: var(--text); }
+.dash-sidebar a.active { background: rgba(74, 138, 212, 0.12); color: var(--text); border-left-color: var(--primary); }
+.dash-sidebar a.back-link { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 16px; color: var(--text3); }
+
+/* ---------- Main / topbar ---------- */
+.dash-main { flex: 1; padding: 0; min-width: 0; }
+.dash-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  background: rgba(11, 15, 26, 0.7);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.dash-topbar h2 { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; color: var(--text); margin: 0; display: flex; align-items: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-content-inner { padding: 24px 28px 40px; max-width: 1280px; }
+
+.live-indicator {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; color: var(--text3); margin-left: 12px; font-weight: 500;
+}
+.live-indicator .dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--success);
+  box-shadow: 0 0 0 0 rgba(47,191,113,0.6);
+  animation: livePulse 1.8s infinite;
+}
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 rgba(47,191,113,0.55); }
+  70% { box-shadow: 0 0 0 6px rgba(47,191,113,0); }
+  100% { box-shadow: 0 0 0 0 rgba(47,191,113,0); }
+}
+
+/* ---------- Stat cards ---------- */
+.stat-cards { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 26px; }
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  flex: 1;
+  min-width: 170px;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+.stat-card:hover { border-color: rgba(74,138,212,0.4); transform: translateY(-2px); }
+.stat-card .stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700; color: var(--text);
+  transition: opacity 0.25s ease;
+}
+.stat-card .stat-value.updating { opacity: 0.35; }
+.stat-card .stat-label { color: var(--text3); font-size: 12.5px; margin-top: 4px; }
+
+/* ---------- Sections / tables ---------- */
+.dash-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 22px;
+}
+.dash-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-weight: 700; color: var(--text);
+  margin: 0 0 14px;
+}
+.dash-table { width: 100%; border-collapse: collapse; }
+.dash-table th, .dash-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  text-align: left; font-size: 13.5px; color: var(--text2);
+}
+.dash-table th { color: var(--text3); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr:hover td { background: rgba(74,138,212,0.04); }
+.dash-table a { color: var(--primary); text-decoration: none; }
+.dash-table a:hover { text-decoration: underline; }
+
+/* ---------- Buttons ---------- */
+.btn-dash {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--gold); color: #fff; border: none; border-radius: 10px;
+  padding: 9px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  text-decoration: none; transition: background 0.2s ease;
+}
+.btn-dash:hover { background: var(--olive); color: #fff; }
+.btn-dash-danger { background: var(--danger); }
+.btn-dash-danger:hover { background: #c62734; }
+.btn-dash-secondary { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+.btn-dash-secondary:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+/* ---------- Forms: matn/raqam va textarea maydonlari ---------- */
+.dash-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dash-form textarea {
+  width: 100%; padding: 10px 12px; margin-bottom: 14px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem;
+  outline: none; transition: border-color 0.2s ease;
+}
+.dash-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.dash-form textarea:focus { border-color: var(--primary); }
+
+.dash-form input[type="checkbox"], .dash-form input[type="radio"] {
+  width: 16px; height: 16px; accent-color: var(--primary); vertical-align: middle; margin-right: 6px; cursor: pointer;
+}
+
+.dash-form label { display: block; font-size: 0.75rem; color: var(--text2); margin-bottom: 5px; font-weight: 600; }
+.dash-form p { margin-bottom: 4px; }
+.dash-form ul.errorlist { list-style: none; color: #f87171; font-size: 0.75rem; margin: 0 0 8px; padding: 0; }
+
+/* ---------- Select (dropdown) — butun boshqaruv panelida bir xil, o'qiladigan
+   uslub: ixcham strelka va variantlar ro'yxati aniq ko'rinadi (faqat hoverda
+   emas). Bu qoida .dash-form ichidagi va tashqarisidagi (masalan, buyurtmalar
+   ro'yxatidagi filtr) barcha select'larga tegishli. ---------- */
+.dashboard-body select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-color: rgba(255,255,255,0.05);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%237a8aa8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 13px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 10px 38px 10px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.dashboard-body select:focus { border-color: var(--primary); }
+.dash-form select { width: 100%; margin-bottom: 14px; }
+/* Variantlar ro'yxati ochilganda brauzer uni odatda oq fonda chizadi — shu
+   sabab matn rangini alohida, quyuq qilib belgilaymiz. Aks holda matn faqat
+   sichqoncha ustiga kelganda (hover/tanlanganda) ko'rinar edi. */
+.dashboard-body select option {
+  color: #1f2937;
+  background: #ffffff;
+  padding: 8px;
+}
+
+/* ---------- Fayl (rasm) tanlash maydoni ---------- */
+.dash-form input[type="file"] {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.22);
+  border-radius: 10px;
+  color: var(--text3);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.dash-form input[type="file"]:hover { border-color: rgba(74,138,212,0.5); background: rgba(74,138,212,0.06); }
+.dash-form input[type="file"]::file-selector-button,
+.dash-form input[type="file"]::-webkit-file-upload-button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-right: 12px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.dash-form input[type="file"]:hover::file-selector-button,
+.dash-form input[type="file"]:hover::-webkit-file-upload-button { background: var(--olive); }
+
+/* ---------- Badges ---------- */
+.badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #fff; display: inline-block; }
+.badge-staff { background: var(--primary); }
+.badge-active { background: var(--success); }
+.badge-inactive { background: var(--text3); }
+
+/* ---------- Responsive table wrapper (tablet: horizontal scroll) ---------- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-responsive .dash-table { min-width: 560px; }
+
+/* ============================================================
+   TABLET (≤ 900px) — sidebar becomes an off-canvas drawer
+   ============================================================ */
+@media (max-width: 900px) {
+  .dash-menu-btn { display: inline-flex; }
+  .dash-sidebar-close { display: inline-flex; }
+
+  .dash-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100dvh;
+    width: 270px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 40;
+    box-shadow: 8px 0 30px rgba(0,0,0,0.4);
+  }
+  .dash-sidebar.open { transform: translateX(0); }
+  .dash-sidebar a { padding: 13px 22px; font-size: 0.92rem; }
+
+  .dash-topbar { padding: 14px 16px; }
+  .dash-topbar h2 { font-size: 1.1rem; }
+  .dash-back-link span { display: none; }
+  .dash-back-link { padding: 8px; }
+
+  .dash-content-inner { padding: 18px 16px 32px; }
+
+  .stat-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { min-width: 0; }
+  .stat-card .stat-value { font-size: 22px; }
+}
+
+/* ============================================================
+   PHONE (≤ 640px) — jadvallar gorizontal skroll o'rniga
+   qulay "karta" ko'rinishiga o'tadi
+   ============================================================ */
+@media (max-width: 640px) {
+  .dash-section { padding: 16px; border-radius: 12px; }
+  .dash-content-inner { padding: 14px 12px 28px; }
+  .stat-cards { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-card { padding: 14px 14px; border-radius: 12px; }
+  .stat-card .stat-value { font-size: 19px; }
+  .stat-card .stat-label { font-size: 11.5px; }
+
+  .table-responsive { overflow-x: visible; }
+  .table-responsive .dash-table { min-width: 0; }
+
+  .dash-table thead { display: none; }
+  .dash-table, .dash-table tbody, .dash-table tr, .dash-table td { display: block; width: 100%; }
+  .dash-table tr {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+  }
+  .dash-table tr:last-child { margin-bottom: 0; }
+  .dash-table td {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+  }
+  .dash-table td:last-child { border-bottom: none; }
+  .dash-table td:before {
+    content: attr(data-label);
+    color: var(--text3);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-align: left;
+    margin-right: auto;
+    flex-shrink: 0;
+  }
+  .dash-table td:not([data-label]) { justify-content: flex-start; }
+  /* Bo'sh holat / colspan qatorlari — karta uslubidan chiqariladi */
+  .dash-table td[colspan] { display: block; text-align: center; border-bottom: none; }
+  .dash-table td[colspan]:before { content: none; }
+
+  .dash-form { max-width: 100% !important; }
+  .dash-form { display: flex; flex-direction: column; gap: 10px; }
+  .dash-form p { margin: 0; }
+  .btn-dash { width: 100%; margin-left: 0 !important; }
+  .dash-table td .btn-dash, .dash-table td a { width: auto; }
+}

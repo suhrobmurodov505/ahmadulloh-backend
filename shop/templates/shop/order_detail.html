@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Buyurtma #{{ order.id }} — {{ SITE_NAME }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .status-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:999px; font-size:0.7rem; font-weight:600; }
+  .status-pending { background: rgba(59,130,246,0.15); color:#60a5fa; }
+  .status-processing { background: rgba(245,158,11,0.15); color:#f59e0b; }
+  .status-shipped { background: rgba(168,85,247,0.15); color:#c084fc; }
+  .status-delivered { background: rgba(16,185,129,0.15); color:#10b981; }
+  .status-cancelled { background: rgba(239,68,68,0.15); color:#f87171; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-8 px-1 md:px-4">
+  <div class="max-w-4xl mx-auto">
+    <a href="{% url 'shop:order_history' %}" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 mb-6 transition-colors">
+      <i class="fa-solid fa-arrow-left"></i> Buyurtmalarimga qaytish
+    </a>
+
+    <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 mb-6">
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+        <h1 class="text-xl md:text-2xl font-bold text-white" style="font-family:'Playfair Display',serif;">Buyurtma #{{ order.id }}</h1>
+        <span class="status-badge {{ order.get_status_display_class }}">{{ order.get_status_display }}</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div><span class="text-gray-400">Sana:</span> <span class="text-white">{{ order.created_at|date:"d.m.Y H:i" }}</span></div>
+        <div><span class="text-gray-400">Telefon:</span> <span class="text-white">{{ order.phone }}</span></div>
+        <div class="md:col-span-2"><span class="text-gray-400">Yetkazish manzili:</span> <span class="text-white">{{ order.address }}</span></div>
+        {% if order.comment %}<div class="md:col-span-2"><span class="text-gray-400">Izoh:</span> <span class="text-white">{{ order.comment }}</span></div>{% endif %}
+      </div>
+    </div>
+
+    <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-400 text-xs uppercase tracking-wide border-b border-white/10">
+              <th class="py-3 px-4">Mahsulot</th>
+              <th class="py-3 px-4">Narxi</th>
+              <th class="py-3 px-4">Soni</th>
+              <th class="py-3 px-4">Jami</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+            <tr class="border-b border-white/5">
+              <td class="py-3 px-4 text-white">{{ item.product_name }}</td>
+              <td class="py-3 px-4 text-gray-300">{{ item.price|floatformat:0|intcomma }} so'm</td>
+              <td class="py-3 px-4 text-gray-300">{{ item.quantity }}</td>
+              <td class="py-3 px-4 text-blue-400 font-semibold">{{ item.get_cost|floatformat:0|intcomma }} so'm</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-end p-4 border-t border-white/10">
+        <span class="text-base font-bold text-white">Jami: <span class="text-blue-400" style="font-family:'Playfair Display',serif;">{{ order.get_total_cost|floatformat:0|intcomma }} so'm</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

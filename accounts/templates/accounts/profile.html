@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profil — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="py-8 px-1 md:px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+      <h1 class="text-2xl md:text-4xl font-bold tracking-tight text-white" style="font-family:'Playfair Display',serif;">Mening profilim</h1>
+      <p class="text-sm text-gray-300 mt-1">Shaxsiy ma'lumotlar va sozlamalar</p>
+    </div>
+
+    {% if guest %}
+    <!-- MEHMON KO'RINISHI -->
+    <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-10 text-center">
+      <div class="w-16 h-16 mx-auto rounded-full bg-blue-600/20 flex items-center justify-center text-2xl text-blue-400 mb-4">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <h2 class="text-lg font-bold text-white mb-2">Siz tizimga kirmagansiz</h2>
+      <p class="text-sm text-gray-400 mb-6 max-w-sm mx-auto">Buyurtmalar tarixini saqlash va profil ma'lumotlarini tahrirlash uchun tizimga kiring yoki ro'yxatdan o'ting. Xarid qilish va savatchadan foydalanish uchun kirish shart emas.</p>
+      <div class="flex items-center justify-center gap-3 flex-wrap">
+        <a href="{% url 'accounts:login' %}" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors">Tizimga kirish</a>
+        <a href="{% url 'accounts:register' %}" class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-gray-300 hover:border-blue-400/50 text-sm font-medium transition-colors">Ro'yxatdan o'tish</a>
+      </div>
+      <a href="{% url 'shop:order_history' %}" class="inline-flex items-center gap-2 mt-6 text-xs text-gray-400 hover:text-blue-400 transition-colors">
+        <i class="fa-solid fa-receipt"></i> Mehmon sifatida buyurtmalarimni ko'rish
+      </a>
+    </div>
+    {% else %}
+
+    <!-- PROFIL HERO -->
+    <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex items-center gap-5 mb-6 flex-wrap">
+      <div class="w-20 h-20 rounded-full overflow-hidden border border-blue-400/30 bg-blue-600/20 flex items-center justify-center text-2xl font-bold text-blue-400 shrink-0">
+        {% if user.profile.avatar %}
+          <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+        {% else %}
+          {{ user.username|first|upper }}
+        {% endif %}
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="text-lg font-bold text-white">{{ user.get_full_name|default:user.username }}</h2>
+        <p class="text-sm text-gray-400">{{ user.email|default:"Email kiritilmagan" }}</p>
+        <div class="mt-2 flex items-center gap-2 flex-wrap">
+          <span class="text-[11px] px-2.5 py-1 rounded-full bg-blue-600/15 border border-blue-400/30 text-blue-400 font-semibold"><i class="fa-solid fa-user"></i> {{ user.username }}</span>
+          {% if user.is_staff %}
+            <span class="text-[11px] px-2.5 py-1 rounded-full bg-emerald-600/15 border border-emerald-400/30 text-emerald-400 font-semibold"><i class="fa-solid fa-shield"></i> Admin</span>
+          {% endif %}
+        </div>
+      </div>
+      <a href="{% url 'shop:order_history' %}" class="shrink-0 px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-gray-300 hover:border-blue-400/50 text-sm font-medium transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-receipt"></i> Buyurtmalarim
+      </a>
+    </div>
+
+    <!-- TAHRIRLASH FORMASI -->
+    <form method="post" enctype="multipart/form-data" class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8">
+      {% csrf_token %}
+      <h3 class="font-bold text-white mb-4 flex items-center gap-2" style="font-family:'Playfair Display',serif;">
+        <i class="fa-solid fa-id-card text-blue-400"></i> Shaxsiy ma'lumotlar
+      </h3>
+      {{ user_form.as_p }}
+
+      <h3 class="font-bold text-white mb-4 mt-6 pt-6 border-t border-white/10 flex items-center gap-2" style="font-family:'Playfair Display',serif;">
+        <i class="fa-solid fa-address-book text-blue-400"></i> Qo'shimcha ma'lumotlar
+      </h3>
+      {{ profile_form.as_p }}
+
+      <button type="submit" class="mt-3 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors">
+        <i class="fa-solid fa-save"></i> Saqlash
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_reports %}active{% endblock %}
+{% block page_title %}Hisobotlar{% endblock %}
+
+{% block dash_content %}
+    <div class="dash-section">
+        <h3>Oxirgi 14 kunlik to'langan buyurtmalar</h3>
+        <div class="table-responsive">
+        <table class="dash-table">
+            <thead><tr><th>Sana</th><th>Buyurtmalar soni</th></tr></thead>
+            <tbody>
+                {% for row in daily_sales %}
+                    <tr><td data-label="Sana">{{ row.day|date:"d.m.Y" }}</td><td data-label="Buyurtmalar soni">{{ row.orders_count }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="2">Bu davrda to'langan buyurtma yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="dash-section">
+        <h3>Eng ko'p sotilgan mahsulotlar</h3>
+        <div class="table-responsive">
+        <table class="dash-table">
+            <thead><tr><th>Mahsulot</th><th>Sotilgan soni</th><th>Tushum</th></tr></thead>
+            <tbody>
+                {% for row in top_products %}
+                    <tr><td data-label="Mahsulot">{{ row.product_name }}</td><td data-label="Sotilgan soni">{{ row.total_sold }}</td><td data-label="Tushum">{{ row.total_revenue }} so'm</td></tr>
+                {% empty %}
+                    <tr><td colspan="3">Hozircha sotuv yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="dash-section">
+        <h3>Buyurtmalar holati bo'yicha taqsimot</h3>
+        <div class="table-responsive">
+        <table class="dash-table">
+            <thead><tr><th>Holati</th><th>Soni</th></tr></thead>
+            <tbody>
+                {% for row in status_breakdown %}
+                    <tr><td data-label="Holati">{{ row.status }}</td><td data-label="Soni">{{ row.count }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+{% endblock %}

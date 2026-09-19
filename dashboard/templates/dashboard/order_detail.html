@@ -1,0 +1,46 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_orders %}active{% endblock %}
+{% block page_title %}Buyurtma #{{ order.id }}{% endblock %}
+
+{% block dash_content %}
+    <div class="dash-section">
+        <p><strong>Mijoz:</strong> {{ order.full_name }} ({{ order.user.username }})</p>
+        <p><strong>Telefon:</strong> {{ order.phone }}</p>
+        <p><strong>Manzil:</strong> {{ order.address }}</p>
+        {% if order.comment %}<p><strong>Izoh:</strong> {{ order.comment }}</p>{% endif %}
+        <p><strong>Sana:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+
+        <div class="table-responsive">
+        <table class="dash-table">
+            <thead><tr><th>Mahsulot</th><th>Narxi</th><th>Soni</th><th>Jami</th></tr></thead>
+            <tbody>
+                {% for item in order.items.all %}
+                    <tr>
+                        <td data-label="Mahsulot">{{ item.product_name }}</td>
+                        <td data-label="Narxi">{{ item.price }} so'm</td>
+                        <td data-label="Soni">{{ item.quantity }}</td>
+                        <td data-label="Jami">{{ item.get_cost }} so'm</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <p><strong>Umumiy summa: {{ order.get_total_cost }} so'm</strong></p>
+
+        <form method="post" class="dash-form" style="max-width:300px;">
+            {% csrf_token %}
+            <label>Holatini o'zgartirish:</label>
+            <select name="status">
+                {% for value, label in order.STATUS_CHOICES %}
+                    <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <label style="display:block;margin-top:10px;">
+                <input type="checkbox" name="paid" {% if order.paid %}checked{% endif %} style="width:auto;">
+                To'landi
+            </label>
+            <button type="submit" class="btn-dash" style="margin-top:12px;">Yangilash</button>
+        </form>
+    </div>
+{% endblock %}

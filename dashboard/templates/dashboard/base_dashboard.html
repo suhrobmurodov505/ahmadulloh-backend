@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Boshqaruv paneli — {{ SITE_NAME }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-body">
+    <div class="dash-wrapper">
+        <div class="dash-overlay" id="dashOverlay"></div>
+        <aside class="dash-sidebar" id="dashSidebar">
+            <div class="brand">
+                <img src="{% static 'img/vertex.png' %}" alt="{{ SITE_NAME }}" style="height:22px;width:auto;margin-right:2px;">
+                {{ SITE_NAME }} <span>Admin</span>
+                <button type="button" class="dash-sidebar-close" id="dashSidebarClose" aria-label="Menyuni yopish"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <a href="{% url 'dashboard:home' %}" class="{% block nav_home %}{% endblock %}"><i class="fa-solid fa-chart-line" style="width:16px;"></i> Umumiy ko'rinish</a>
+            <a href="{% url 'dashboard:product_list' %}" class="{% block nav_products %}{% endblock %}"><i class="fa-solid fa-box" style="width:16px;"></i> Mahsulotlar</a>
+            <a href="{% url 'dashboard:category_list' %}" class="{% block nav_categories %}{% endblock %}"><i class="fa-solid fa-layer-group" style="width:16px;"></i> Kategoriyalar</a>
+            <a href="{% url 'dashboard:order_list' %}" class="{% block nav_orders %}{% endblock %}"><i class="fa-solid fa-receipt" style="width:16px;"></i> Buyurtmalar</a>
+            <a href="{% url 'dashboard:user_list' %}" class="{% block nav_users %}{% endblock %}"><i class="fa-solid fa-users" style="width:16px;"></i> Foydalanuvchilar</a>
+            <a href="{% url 'dashboard:reports' %}" class="{% block nav_reports %}{% endblock %}"><i class="fa-solid fa-chart-pie" style="width:16px;"></i> Hisobotlar</a>
+            <a href="{% url 'shop:home' %}" class="back-link"><i class="fa-solid fa-house" style="width:16px;"></i> Saytga qaytish</a>
+        </aside>
+        <main class="dash-main">
+            <div class="dash-topbar">
+                <div class="dash-topbar-left">
+                    <button type="button" class="dash-menu-btn" id="dashMenuBtn" aria-label="Menyuni ochish"><i class="fa-solid fa-bars"></i></button>
+                    <h2>{% block page_title %}{% endblock %}{% block page_title_extra %}{% endblock %}</h2>
+                </div>
+                <a href="{% url 'shop:home' %}" class="dash-back-link"><i class="fa-solid fa-arrow-left"></i> <span>Saytga qaytish</span></a>
+            </div>
+            <div class="dash-content-inner">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="dash-section" style="border-left:4px solid var(--success); padding:14px 22px; margin-bottom:18px;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% block dash_content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    <script>
+        (function () {
+            var sidebar = document.getElementById('dashSidebar');
+            var overlay = document.getElementById('dashOverlay');
+            var openBtn = document.getElementById('dashMenuBtn');
+            var closeBtn = document.getElementById('dashSidebarClose');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+                document.body.classList.add('dash-no-scroll');
+            }
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+                document.body.classList.remove('dash-no-scroll');
+            }
+            if (openBtn) openBtn.addEventListener('click', openSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+            sidebar.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', closeSidebar);
+            });
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 900) closeSidebar();
+            });
+        })();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

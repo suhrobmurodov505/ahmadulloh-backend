@@ -1,0 +1,15 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_categories %}active{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block dash_content %}
+    <div class="dash-section">
+        <form method="post" enctype="multipart/form-data" class="dash-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-dash">Saqlash</button>
+            <a href="{% url 'dashboard:category_list' %}" class="btn-dash btn-dash-secondary" style="margin-left:8px;">Bekor qilish</a>
+        </form>
+    </div>
+{% endblock %}

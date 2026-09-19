@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if category %}{{ category.name }}{% else %}Barcha mahsulotlar{% endif %} — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="py-8 px-1 md:px-4">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-6 bg-[#030712]/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white" style="font-family:'Playfair Display',serif;">
+          {% if category %}{{ category.name }}{% else %}Barcha mahsulotlar{% endif %}
+        </h1>
+        <p class="text-sm text-gray-400 mt-1">{{ page_obj.paginator.count }} ta mahsulot topildi</p>
+      </div>
+      <form method="get" class="flex items-center gap-2">
+        <input type="text" name="q" value="{{ query }}" placeholder="Mahsulot qidirish..."
+               class="bg-white/5 border border-white/15 rounded-full px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-400/60 w-56">
+        <button type="submit" class="w-10 h-10 rounded-full bg-blue-600/90 hover:bg-blue-500 text-white flex items-center justify-center transition-colors shrink-0">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- KATEGORIYA FILTRLARI -->
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-4 mb-2">
+      <a href="{% url 'shop:product_list' %}{% if query %}?q={{ query }}{% endif %}"
+         class="shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-colors {% if not category %}bg-blue-600 border-blue-500 text-white{% else %}bg-white/5 border-white/10 text-gray-300 hover:border-blue-400/50{% endif %}">
+        Barchasi
+      </a>
+      {% for c in categories %}
+      <a href="{% url 'shop:product_list_by_category' c.slug %}{% if query %}?q={{ query }}{% endif %}"
+         class="shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-colors {% if category.slug == c.slug %}bg-blue-600 border-blue-500 text-white{% else %}bg-white/5 border-white/10 text-gray-300 hover:border-blue-400/50{% endif %}">
+        {{ c.name }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- MAHSULOTLAR GRID -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      {% for product in page_obj %}
+        {% include "shop/includes/product_card.html" %}
+      {% empty %}
+        <div class="col-span-full text-center py-16">
+          <i class="fa-solid fa-box-open text-4xl text-gray-600 mb-3"></i>
+          <p class="text-gray-400">Hech narsa topilmadi.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- PAGINATSIYA -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="flex items-center justify-center gap-3 mt-10">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+           class="w-10 h-10 rounded-full bg-white/5 border border-white/15 text-white flex items-center justify-center hover:border-blue-400/60 transition-colors">
+          <i class="fa-solid fa-chevron-left"></i>
+        </a>
+      {% endif %}
+      <span class="text-sm text-gray-300">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+           class="w-10 h-10 rounded-full bg-white/5 border border-white/15 text-white flex items-center justify-center hover:border-blue-400/60 transition-colors">
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

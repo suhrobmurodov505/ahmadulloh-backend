@@ -1,0 +1,30 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_products %}active{% endblock %}
+{% block page_title %}Mahsulotlar{% endblock %}
+
+{% block dash_content %}
+    <p><a href="{% url 'dashboard:product_create' %}" class="btn-dash">+ Yangi mahsulot</a></p>
+    <div class="table-responsive">
+    <table class="dash-table">
+        <thead><tr><th>Nomi</th><th>Kategoriya</th><th>Narxi</th><th>Ombor</th><th>Holati</th><th></th></tr></thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td data-label="Nomi">{{ product.name }}</td>
+                    <td data-label="Kategoriya">{{ product.category.name }}</td>
+                    <td data-label="Narxi">{{ product.price }} so'm</td>
+                    <td data-label="Ombor">{{ product.stock }}</td>
+                    <td data-label="Holati">{% if product.available %}Sotuvda{% else %}Yashirilgan{% endif %}</td>
+                    <td data-label="Amallar">
+                        <a href="{% url 'dashboard:product_update' product.pk %}">Tahrirlash</a> |
+                        <a href="{% url 'dashboard:product_delete' product.pk %}">O'chirish</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">Mahsulotlar yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

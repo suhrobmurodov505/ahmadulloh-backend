@@ -1,0 +1,27 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block nav_categories %}active{% endblock %}
+{% block page_title %}Kategoriyalar{% endblock %}
+
+{% block dash_content %}
+    <p><a href="{% url 'dashboard:category_create' %}" class="btn-dash">+ Yangi kategoriya</a></p>
+    <div class="table-responsive">
+    <table class="dash-table">
+        <thead><tr><th>Nomi</th><th>Mahsulotlar soni</th><th></th></tr></thead>
+        <tbody>
+            {% for category in categories %}
+                <tr>
+                    <td data-label="Nomi">{{ category.name }}</td>
+                    <td data-label="Mahsulotlar soni">{{ category.product_count }}</td>
+                    <td data-label="Amallar">
+                        <a href="{% url 'dashboard:category_update' category.pk %}">Tahrirlash</a> |
+                        <a href="{% url 'dashboard:category_delete' category.pk %}">O'chirish</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3">Kategoriyalar yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

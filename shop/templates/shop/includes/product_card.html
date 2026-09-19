@@ -1,0 +1,34 @@
+{% load humanize %}
+<div class="rounded-2xl border overflow-hidden flex flex-col justify-between hover:border-blue-400/60 transition-all duration-300 group shadow-2xl" style="background:var(--cat-bg); border-color:var(--border);">
+  <a href="{{ product.get_absolute_url }}" class="relative w-full h-44 media-frame overflow-hidden block">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+    {% else %}
+      <div class="w-full h-full flex items-center justify-center text-gray-500 text-xs">Rasm yo'q</div>
+    {% endif %}
+    {% if product.stock == 0 %}
+      <span class="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full bg-red-500/90 text-white">Sotuvda yo'q</span>
+    {% endif %}
+  </a>
+  <div class="p-4 flex flex-col gap-2">
+    <span class="text-[10px] font-bold tracking-wider uppercase" style="color:var(--text3);">{{ product.category.name }}</span>
+    <a href="{{ product.get_absolute_url }}" class="font-bold text-base line-clamp-1 hover:text-blue-400" style="color:var(--text);">{{ product.name }}</a>
+    <div class="text-lg font-extrabold text-blue-400">{{ product.price|floatformat:0|intcomma }} so'm</div>
+    <div class="flex items-center gap-2 mt-1">
+      {% if product.stock > 0 %}
+        {% if user.is_authenticated %}
+          <form action="{% url 'shop:cart_add' product.id %}" method="post" class="flex-1">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="override" value="">
+            <button type="submit" class="w-full py-2 px-3 rounded-xl bg-blue-600/90 hover:bg-blue-500 text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shadow-md"><i class="fa-solid fa-cart-shopping"></i> Savatga</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="flex-1 py-2 px-3 rounded-xl bg-blue-600/90 hover:bg-blue-500 text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shadow-md"><i class="fa-solid fa-cart-shopping"></i> Savatga</a>
+        {% endif %}
+      {% else %}
+        <span class="flex-1 py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-gray-500 font-medium text-xs flex items-center justify-center gap-2">Tugagan</span>
+      {% endif %}
+    </div>
+  </div>
+</div>

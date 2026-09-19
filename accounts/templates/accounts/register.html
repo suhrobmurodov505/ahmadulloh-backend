@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ro'yxatdan o'tish — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="py-14 px-1 md:px-4 flex justify-center">
+  <div class="max-w-md w-full bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-8 md:p-10">
+    <div class="text-center mb-6">
+      <img src="{% static 'img/vertex.png' %}" alt="{{ SITE_NAME }}" class="h-12 w-auto mx-auto mb-3 object-contain">
+      <h1 class="text-xl font-bold text-white" style="font-family:'Playfair Display',serif;">Ro'yxatdan o'tish</h1>
+      <p class="text-xs text-gray-400 mt-1">Bir necha soniyada hisob yarating</p>
+    </div>
+    <form method="post" class="flex flex-col gap-1">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors">
+        <i class="fa-solid fa-user-plus"></i> Ro'yxatdan o'tish
+      </button>
+    </form>
+    <p class="text-center text-sm text-gray-400 mt-5">Hisobingiz bormi? <a href="{% url 'accounts:login' %}" class="text-blue-400 hover:text-blue-300 font-medium">Kiring</a></p>
+  </div>
+</div>
+{% endblock %}

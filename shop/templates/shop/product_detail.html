@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ product.name }} — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="py-8 px-1 md:px-4">
+  <div class="max-w-7xl mx-auto">
+
+    <a href="{% url 'shop:product_list' %}" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 mb-6 transition-colors">
+      <i class="fa-solid fa-arrow-left"></i> Mahsulotlarga qaytish
+    </a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+
+      <!-- RASM -->
+      <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-4 md:sticky md:top-20">
+        <div class="relative rounded-xl overflow-hidden media-frame" style="min-height:320px;">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover" style="max-height:420px;">
+          {% else %}
+            <div class="w-full h-80 flex items-center justify-center text-gray-500">Rasm yo'q</div>
+          {% endif %}
+          {% if product.stock == 0 %}
+            <span class="absolute top-3 left-3 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-red-500/90 text-white">Sotuvda yo'q</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- MA'LUMOT -->
+      <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8">
+        <span class="text-[11px] font-bold tracking-widest uppercase text-blue-400">{{ product.category.name }}</span>
+        <h1 class="text-2xl md:text-3xl font-bold text-white mt-2 mb-3" style="font-family:'Playfair Display',serif;">{{ product.name }}</h1>
+
+        <div class="flex items-baseline gap-3 mb-4">
+          <span class="text-3xl font-extrabold text-blue-400" style="font-family:'Playfair Display',serif;">{{ product.price|floatformat:0|intcomma }} so'm</span>
+        </div>
+
+        <div class="text-sm mb-5">
+          {% if product.stock > 0 %}
+            <span class="inline-flex items-center gap-2 text-gray-300"><i class="fa-solid fa-boxes-stacked text-blue-400"></i> Omborda: <b class="text-white">{{ product.stock }}</b> dona mavjud</span>
+          {% else %}
+            <span class="inline-flex items-center gap-2 text-red-400 font-medium"><i class="fa-solid fa-circle-xmark"></i> Sotuvda yo'q</span>
+          {% endif %}
+        </div>
+
+        <div class="text-sm text-gray-300 leading-relaxed border-t border-white/10 pt-4 mb-6">
+          {{ product.description|linebreaks }}
+        </div>
+
+        {% if product.stock > 0 %}
+          {% if user.is_authenticated %}
+            <form action="{% url 'shop:cart_add' product.id %}" method="post" class="flex items-center gap-3 flex-wrap">
+              {% csrf_token %}
+              <label class="flex items-center gap-2 bg-white/5 border border-white/15 rounded-xl px-3 py-2">
+                <span class="text-xs text-gray-400">Soni</span>
+                {{ cart_product_form.quantity }}
+              </label>
+              <button type="submit" class="flex-1 min-w-[180px] py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors shadow-lg">
+                <i class="fa-solid fa-cart-plus"></i> Savatchaga qo'shish
+              </button>
+            </form>
+          {% else %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="inline-flex items-center gap-2 py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors shadow-lg">
+              <i class="fa-solid fa-right-to-bracket"></i> Savatchaga qo'shish uchun kiring
+            </a>
+          {% endif %}
+        {% endif %}
+
+        <div class="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-white/10 text-xs text-gray-400">
+          <div><span class="font-semibold text-gray-300">Kategoriya:</span> {{ product.category.name }}</div>
+          <div><span class="font-semibold text-gray-300">Mahsulot ID:</span> #{{ product.id }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- O'XSHASH MAHSULOTLAR -->
+    {% if similar_products %}
+    <div class="mt-14">
+      <h3 class="text-xl font-bold text-white mb-5" style="font-family:'Playfair Display',serif;">O'xshash mahsulotlar</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+        {% for product in similar_products %}
+          {% include "shop/includes/product_card.html" %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

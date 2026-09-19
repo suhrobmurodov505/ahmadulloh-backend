@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Savatcha — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="py-8 px-1 md:px-4">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="mb-8">
+      <h1 class="text-2xl md:text-4xl font-bold tracking-tight text-white" style="font-family:'Playfair Display',serif;">Savatcha</h1>
+      <p class="text-sm text-gray-300 mt-1">{{ cart.get_total_items }} ta mahsulot</p>
+    </div>
+
+    {% if cart.items.count == 0 %}
+      <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-14 text-center">
+        <i class="fa-solid fa-cart-shopping text-4xl text-gray-600 mb-4"></i>
+        <p class="text-gray-300 mb-4">Savatchangiz bo'sh.</p>
+        <a href="{% url 'shop:product_list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors">
+          Xarid qilishni boshlang <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    {% else %}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+
+        <!-- MAHSULOTLAR RO'YXATI -->
+        <div class="md:col-span-2 bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-4 md:p-6 flex flex-col gap-4">
+          {% for item in cart.items.all %}
+          <div class="flex items-center gap-4 pb-4 {% if not forloop.last %}border-b border-white/10{% endif %}">
+            <a href="{{ item.product.get_absolute_url }}" class="w-20 h-20 rounded-xl overflow-hidden media-frame shrink-0">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+              {% endif %}
+            </a>
+            <div class="flex-1 min-w-0">
+              <a href="{{ item.product.get_absolute_url }}" class="font-semibold text-sm text-white hover:text-blue-400 line-clamp-1">{{ item.product.name }}</a>
+              <p class="text-xs text-gray-400 mt-1">{{ item.product.price|floatformat:0|intcomma }} so'm / dona</p>
+              <form action="{% url 'shop:cart_update' item.id %}" method="post" class="flex items-center gap-2 mt-2">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="50" style="width:64px;padding:6px 8px;">
+                <button type="submit" class="text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/15 text-gray-300 hover:border-blue-400/50 transition-colors">Yangilash</button>
+              </form>
+            </div>
+            <div class="flex flex-col items-end gap-2 shrink-0">
+              <span class="font-bold text-blue-400 text-sm">{{ item.get_cost|floatformat:0|intcomma }} so'm</span>
+              <form action="{% url 'shop:cart_remove' item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1"><i class="fa-solid fa-trash"></i> O'chirish</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+
+          <form method="get" class="flex items-center gap-2 flex-wrap mt-2">
+            <input placeholder="Kupon kodi" style="flex:1;min-width:140px;" disabled>
+            <button type="button" class="text-xs px-4 py-2.5 rounded-lg bg-white/5 border border-white/15 text-gray-400" disabled><i class="fa-solid fa-ticket"></i> Qo'llash</button>
+          </form>
+        </div>
+
+        <!-- BUYURTMA XULOSASI -->
+        <div class="bg-[#0b1120]/30 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:sticky md:top-20">
+          <h3 class="font-bold text-white mb-4" style="font-family:'Playfair Display',serif;">Buyurtma xulosasi</h3>
+          <div class="flex flex-col gap-2 text-sm">
+            <div class="flex justify-between"><span class="text-gray-400">Mahsulotlar</span><span class="text-white">{{ cart.get_total_price|floatformat:0|intcomma }} so'm</span></div>
+            <div class="flex justify-between"><span class="text-gray-400">Yetkazib berish</span><span class="text-blue-400">Bepul</span></div>
+            <div class="border-t border-white/10 my-2"></div>
+            <div class="flex justify-between text-base">
+              <span class="font-bold text-white">Jami</span>
+              <span class="font-extrabold text-blue-400" style="font-family:'Playfair Display',serif;">{{ cart.get_total_price|floatformat:0|intcomma }} so'm</span>
+            </div>
+          </div>
+          <a href="{% url 'shop:order_create' %}" class="mt-5 w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors">
+            <i class="fa-solid fa-credit-card"></i> Buyurtmani rasmiylashtirish
+          </a>
+          <a href="{% url 'shop:product_list' %}" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/15 text-gray-300 hover:border-blue-400/50 text-sm transition-colors">
+            <i class="fa-solid fa-arrow-left"></i> Xarid davom ettirish
+          </a>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

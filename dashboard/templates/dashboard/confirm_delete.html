@@ -1,0 +1,14 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block dash_content %}
+    <div class="dash-section">
+        <p>Rostdan ham "<strong>{{ object }}</strong>"ni o'chirmoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-dash btn-dash-danger">Ha, o'chirish</button>
+            <a href="javascript:history.back()" class="btn-dash btn-dash-secondary" style="margin-left:8px;">Bekor qilish</a>
+        </form>
+    </div>
+{% endblock %}
