@@ -28,6 +28,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'ahmadulloh-backend-production.up.railway.app', 'ahmadulloh.uz']
 
+# Netlify'dagi frontend shu yerdan API'ga so'rov yuboradi
+CORS_ALLOWED_ORIGINS = [
+    "https://ahmadulloh.uz",
+]
+# Netlify har deployda vaqtinchalik domenlar ham beradi (masalan random-name--sayt.netlify.app),
+# shuning uchun *.netlify.app domenlariga ham ruxsat beramiz:
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.netlify\.app$",
+]
+
 
 # Application definition
 
@@ -39,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'corsheaders',
 
     # Bizning ilovalarimiz
     'shop',
@@ -48,6 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
